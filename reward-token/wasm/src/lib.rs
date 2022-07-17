@@ -1,0 +1,16 @@
+////////////////////////////////////////////////////
+////////////////// AUTO-GENERATED //////////////////
+////////////////////////////////////////////////////
+
+#![no_std]
+
+elrond_wasm_node::wasm_endpoints! {
+    reward_token
+    (
+        callBack
+        getMemBalance
+        getMemTokenId
+        issueToken
+        setLocalRoles
+    )
+}
