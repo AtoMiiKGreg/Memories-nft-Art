@@ -28,9 +28,9 @@ deploy() {
 }
 
 issueToken() {
-    local TOKEN_DISPLAY_NAME=0x4d656d546f6b656e
-    local TOKEN_TICKER=0x4d454d415254
-    local TOTAL_SUPPLY=0x4c4b40
+    local TOKEN_DISPLAY_NAME=MemoriesNftArt
+    local TOKEN_TICKER=MEM
+    local TOTAL_SUPPLY=5000000
 
     erdpy --verbose contract call "${ADDRESS}" --recall-nonce --pem=${WALLET} \
     --gas-limit=600000000 --value=50000000000000000 --function="issueToken" \
