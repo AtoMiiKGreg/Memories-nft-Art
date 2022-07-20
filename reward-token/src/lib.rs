@@ -23,7 +23,7 @@ pub trait TokenRewardMem :
         token_display_name: ManagedBuffer<Self::Api>,
         token_ticker: ManagedBuffer<Self::Api>,
     ) {
-        require!(self.mem_token_id().is_empty(),"Token already issued");
+        require!(self.token_id().is_empty(),"Token already issued");
 
         let issue_cost = self.call_value().egld_value();
         let caller = self.blockchain().get_caller();
@@ -61,7 +61,7 @@ pub trait TokenRewardMem :
     ) {
         match result {
             ManagedAsyncCallResult::Ok(token_identifier) => {
-                self.mem_token_id().set(&token_identifier);
+                self.token_id().set(&token_identifier);
             },
             ManagedAsyncCallResult::Err(_) => {
                 let returned = self.call_value().egld_or_single_esdt();
@@ -77,7 +77,7 @@ pub trait TokenRewardMem :
     #[endpoint(setLocalRoles)]
     fn set_local_roles(&self) {
         require!(
-            !self.mem_token_id().is_empty(),
+            !self.token_id().is_empty(),
             "Must issue token first"
         );
 
@@ -86,7 +86,7 @@ pub trait TokenRewardMem :
             .esdt_system_sc_proxy()
             .set_special_roles(
                 &self.blockchain().get_sc_address(),
-                &self.mem_token_id().get(),
+                &self.token_id().get(),
                 roles[..].iter().cloned(),
             )
             .async_call()
@@ -101,9 +101,9 @@ pub trait TokenRewardMem :
         amount: BigUint<Self::Api>,
     ){
         require!(amount>0,"The number of token mint can't be less than 1");
-        require!(!self.mem_token_id().is_empty(),"Token must be issued");
+        require!(!self.token_id().is_empty(),"Token must be issued");
 
-        let token = self.mem_token_id().get();
+        let token = self.token_id().get();
         let roles = self.blockchain().get_esdt_local_roles(&token);
 
         require!(roles.has_role(&EsdtLocalRole::Mint),"Esdt local role mint not set");
@@ -118,9 +118,9 @@ pub trait TokenRewardMem :
         amount: BigUint<Self::Api>
     ) {
         require!(amount>0,"The number of token burn can't be less than 1");
-        require!(!self.mem_token_id().is_empty(),"Token must be issued");
+        require!(!self.token_id().is_empty(),"Token must be issued");
 
-        let token = self.mem_token_id().get();
+        let token = self.token_id().get();
         let roles = self.blockchain().get_esdt_local_roles(&token);
 
         require!(roles.has_role(&EsdtLocalRole::Burn),"Esdt local role mint not set");
@@ -131,7 +131,7 @@ pub trait TokenRewardMem :
 
     #[view(getMemBalance)]
     fn get_mem_balance(&self) -> BigUint<Self::Api> {
-        let mem_id = self.mem_token_id().get();
+        let mem_id = self.token_id().get();
         self.blockchain()
             .get_sc_balance(&EgldOrEsdtTokenIdentifier::esdt(mem_id), 0)
 

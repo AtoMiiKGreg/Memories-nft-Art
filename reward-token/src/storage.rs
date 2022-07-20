@@ -8,7 +8,7 @@ pub trait StorageModule
 {
     #[view(getMemTokenId)]
     #[storage_mapper("memTokenId")]
-    fn mem_token_id(&self) -> SingleValueMapper<Self::Api,TokenIdentifier<Self::Api>>;
+    fn token_id(&self) -> SingleValueMapper<Self::Api,TokenIdentifier<Self::Api>>;
 
 
 }

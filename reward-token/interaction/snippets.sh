@@ -45,20 +45,22 @@ setLocalRoles() {
 }
 
 mint(){
-  local AMOUNT=048c27395000
+  # shellcheck disable=SC2162
+  read -p "enter number: " AMOUNT
 
   erdpy --verbose contract call "${ADDRESS}" --recall-nonce --pem=${WALLET} \
   --gas-limit=600000000 --function="mint" \
-  --arguments str:${AMOUNT} \
+  --arguments "${AMOUNT}" \
   --send --proxy=${PROXY} --chain=${CHAIN_ID}
 }
 
 burn(){
-  local AMOUNT=048c27395000
+  # shellcheck disable=SC2162
+  read -p "enter number: " AMOUNT
 
   erdpy --verbose contract call "${ADDRESS}" --recall-nonce --pem=${WALLET} \
   --gas-limit=600000000 --function="burn" \
-  --arguments str:${AMOUNT} \
+  --arguments "${AMOUNT}" \
   --send --proxy=${PROXY} --chain=${CHAIN_ID}
 }
 
@@ -70,3 +72,4 @@ upgradeSC() {
         --proxy=${PROXY} --chain=${CHAIN_ID} \
         --send || return
 }
+
