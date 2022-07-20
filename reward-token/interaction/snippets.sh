@@ -28,13 +28,13 @@ deploy() {
 }
 
 issueToken() {
-    local TOKEN_DISPLAY_NAME=MemoriesNftArt
-    local TOKEN_TICKER=MEM
-    local TOTAL_SUPPLY=5000000
+    local TOKEN_DISPLAY_NAME=TEST
+    local TOKEN_TICKER=BRD
+
 
     erdpy --verbose contract call "${ADDRESS}" --recall-nonce --pem=${WALLET} \
     --gas-limit=600000000 --value=50000000000000000 --function="issueToken" \
-    --arguments str:${TOKEN_DISPLAY_NAME} str:${TOKEN_TICKER} str:${TOTAL_SUPPLY} \
+    --arguments str:${TOKEN_DISPLAY_NAME} str:${TOKEN_TICKER}  \
     --send --proxy=${PROXY} --chain=${CHAIN_ID}
 }
 
@@ -44,16 +44,29 @@ setLocalRoles() {
     --send --proxy=${PROXY} --chain=${CHAIN_ID}
 }
 
-upgradeSC() {
-      local AMOUNT_OF_TOKENS=0x$(printf '%x\n' 10)
-      local ROYALTIES=0x$(printf '%x\n' 5)
-      local SELLING_PRICE=0x$(printf '%x\n' 1)
+mint(){
+  local AMOUNT=048c27395000
 
+  erdpy --verbose contract call "${ADDRESS}" --recall-nonce --pem=${WALLET} \
+  --gas-limit=600000000 --function="mint" \
+  --arguments str:${AMOUNT} \
+  --send --proxy=${PROXY} --chain=${CHAIN_ID}
+}
+
+burn(){
+  local AMOUNT=048c27395000
+
+  erdpy --verbose contract call "${ADDRESS}" --recall-nonce --pem=${WALLET} \
+  --gas-limit=600000000 --function="burn" \
+  --arguments str:${AMOUNT} \
+  --send --proxy=${PROXY} --chain=${CHAIN_ID}
+}
+
+upgradeSC() {
     erdpy --verbose contract upgrade "${ADDRESS}" --recall-nonce \
         --bytecode=${WASM_PATH} \
         --pem=${WALLET} \
         --gas-limit=60000000 \
         --proxy=${PROXY} --chain=${CHAIN_ID} \
-        --arguments ${AMOUNT_OF_TOKENS} ${ROYALTIES} ${SELLING_PRICE} \
         --send || return
 }

@@ -5,10 +5,12 @@ mod storage;
 const NUM_DECIMAL: usize = 6;
 
 elrond_wasm::imports!();
+elrond_wasm::derive_imports!();
 
 #[elrond_wasm::contract]
 pub trait TokenRewardMem :
     storage::StorageModule
+
 {
     #[init]
     fn init(&self) {}
@@ -20,12 +22,12 @@ pub trait TokenRewardMem :
         &self,
         token_display_name: ManagedBuffer<Self::Api>,
         token_ticker: ManagedBuffer<Self::Api>,
-        initial_supply: BigUint<Self::Api>,
     ) {
         require!(self.mem_token_id().is_empty(),"Token already issued");
 
         let issue_cost = self.call_value().egld_value();
         let caller = self.blockchain().get_caller();
+        let initial_supply = BigUint::zero();
 
         self.send()
             .esdt_system_sc_proxy()
@@ -90,6 +92,42 @@ pub trait TokenRewardMem :
             .async_call()
             .call_and_exit()
     }
+
+
+    #[only_owner]
+    #[endpoint(mint)]
+    fn mint(
+        &self,
+        amount: BigUint<Self::Api>,
+    ){
+        require!(amount>0,"The number of token mint can't be less than 1");
+        require!(!self.mem_token_id().is_empty(),"Token must be issued");
+
+        let token = self.mem_token_id().get();
+        let roles = self.blockchain().get_esdt_local_roles(&token);
+
+        require!(roles.has_role(&EsdtLocalRole::Mint),"Esdt local role mint not set");
+
+        self.send().esdt_local_mint(&token,0,&amount);
+
+    }
+    #[only_owner]
+    #[endpoint(burn)]
+    fn burn(
+        &self,
+        amount: BigUint<Self::Api>
+    ) {
+        require!(amount>0,"The number of token burn can't be less than 1");
+        require!(!self.mem_token_id().is_empty(),"Token must be issued");
+
+        let token = self.mem_token_id().get();
+        let roles = self.blockchain().get_esdt_local_roles(&token);
+
+        require!(roles.has_role(&EsdtLocalRole::Burn),"Esdt local role mint not set");
+
+        self.send().esdt_local_burn(&token, 0, &amount);
+    }
+
 
     #[view(getMemBalance)]
     fn get_mem_balance(&self) -> BigUint<Self::Api> {
